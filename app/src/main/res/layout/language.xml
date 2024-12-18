@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:cardCornerRadius="@dimen/_20sdp"
+    android:layoutDirection="ltr"
+    android:textDirection="ltr"
+    app:cardBackgroundColor="@color/appColor">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/language_layout"
+        android:gravity="center_horizontal">
+
+
+        <ImageView
+            android:layout_width="@dimen/_120sdp"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/ic_language"
+            app:tint="@color/white"
+            android:id="@+id/icon"
+            android:padding="@dimen/_30sdp"
+            android:layout_height="@dimen/_120sdp"/>
+
+        <TextView
+            android:layout_centerHorizontal="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/select_language"
+            android:textColor="@color/white"
+            android:id="@+id/title"
+            android:layout_below="@id/icon"
+            android:textSize="@dimen/_16sdp"
+            android:fontFamily="@font/inter_bold" />
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="@dimen/_200sdp"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="@dimen/_50sdp"
+            app:cardElevation="@dimen/_10sdp"
+            android:layout_below="@id/title"
+            app:cardBackgroundColor="@color/white"
+            android:layout_marginTop="@dimen/_30sdp"
+            android:layout_marginBottom="@dimen/_30sdp"
+            android:layout_centerHorizontal="true">
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:id="@+id/sLanguigae"
+                android:layout_height="wrap_content">
+
+                <Spinner
+                    android:layout_width="@dimen/_180sdp"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/languageSelect_alert"
+                    android:layout_marginStart="@dimen/_10sdp"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:layout_marginEnd="@dimen/_10sdp"
+                    android:layout_marginBottom="@dimen/_10sdp"
+                    android:background="@color/white"
+                    android:entries="@array/language" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_down_arrow_24"
+                    app:tint="@color/appColor"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="@dimen/_10sdp"/>
+            </RelativeLayout>
+        </androidx.cardview.widget.CardView>
+
+
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>

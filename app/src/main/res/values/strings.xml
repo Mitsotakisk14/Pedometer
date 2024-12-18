@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">My steps - pedometer</string>
+    <string name="reports">Reports</string>
+    <string name="select_gender">Select Gender</string>
+    <string name="select_language">Select Language</string>
+    <string name="next">Next</string>
+    <string name="start">Start</string>
+    <string name="select_age">Select Age</string>
+    <string name="steps">Steps</string>
+    <string name="km">Km</string>
+    <string name="Kcal">Kcal</string>
+    <string name="Time">Time</string>
+
+    <string-array name="language">
+        <item>Select Language</item>
+        <item>English (US)</item>
+        <item>Arabic (AR)</item>
+    </string-array>
+
+    <string-array name="age">
+        <item>18</item>
+        <item>19</item>
+        <item>20</item>
+    </string-array>
+</resources>

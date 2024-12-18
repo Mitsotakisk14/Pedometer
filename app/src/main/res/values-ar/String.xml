@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">خطواتي - عداد الخطوات</string>
+    <string name="appname">خطواتي - عداد الخطوات</string>
+    <string name="reports">التقارير</string>
+    <string name="select_gender">حدد نوع الجنس</string>
+    <string name="select_language">حدد نوع الجنس</string>
+    <string name="next">التالي</string>
+    <string name="start">بداية</string>
+    <string name="select_age">حدد العمر</string>
+    <string name="steps">خطوات</string>
+    <string name="km">كم</string>
+    <string name="Kcal">سعر حراري</string>
+    <string name="Time">الوقت</string>
+
+
+
+</resources>
