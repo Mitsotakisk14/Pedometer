@@ -100,25 +100,22 @@ class BackGroundService : Service(), SensorEventListener {
 
     override fun onSensorChanged(sensorEvent: SensorEvent) {
         if (running) {
-            totalSteps = sensorEvent.values[0]
+            val detectedSteps = sensorEvent.values[0]
+
             val pref = getSharedPreferences("steps", MODE_PRIVATE)
-            pref.edit().putFloat("sensorValue", sensorEvent.values[0]).apply()
+            pref.edit().putFloat("sensorValue", detectedSteps).apply()
+
             if (checkSteps == 0f) {
-                Log.e("total steps:", "Program is here: " + totalSteps + "2")
                 previousTotalSteps++
-                val st = previousTotalSteps + totalSteps
-                Log.e("total steps:", "Program is here: " + st + "3")
-                totalSteps = st - sensorEvent.values[0]
+                val st = previousTotalSteps + detectedSteps
+                totalSteps = st - detectedSteps
                 totalSteps++
-                Log.e("total steps:", "Program is here: " + totalSteps + "4")
             } else {
                 if (run) {
                     nowSteps++
-                    val st = nowSteps + totalSteps
-                    Log.e("total steps:", "Program is here: " + st + "3")
-                    totalSteps = st - sensorEvent.values[0]
+                    val st = nowSteps + detectedSteps
+                    totalSteps = st - detectedSteps
                     totalSteps++
-                    Log.e("total steps:", "Program is here: " + totalSteps + "4")
                 } else {
                     totalSteps -= previousTotalSteps
                     totalSteps++
@@ -126,8 +123,18 @@ class BackGroundService : Service(), SensorEventListener {
                     run = true
                 }
             }
+
+            // **Fix: Adjust step count only for newly detected steps**
+            val newSteps = totalSteps - previousTotalSteps
+            val correctedSteps = newSteps * (18f / 3f) // Apply correction only to new steps
+            totalSteps = previousTotalSteps + correctedSteps
+
+            // Update previousTotalSteps for future adjustments
+            previousTotalSteps = totalSteps
+
             distance = 75 * totalSteps / 10000
             calories = (0.04 * totalSteps).toFloat()
+
             saveData()
             showNotification()
         }

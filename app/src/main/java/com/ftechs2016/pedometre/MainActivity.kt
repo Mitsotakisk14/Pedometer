@@ -133,20 +133,20 @@ class MainActivity : AppCompatActivity() {
         val date = sharedPreferences.getString("date", null)
         if (date == formattedDate) {
             nextDay = false
-            val s = sharedPreferences.getFloat("key1", 0f)
+            val s = sharedPreferences.getFloat("key1", 0f).toInt()
             val dis = sharedPreferences.getFloat("distance", 0f)
-            val cal = sharedPreferences.getFloat("calories", 0f)
+            val cal = sharedPreferences.getFloat("calories", 0f).toInt()
             seconds = sharedPreferences.getInt("time", 0)
             totalTime = sharedPreferences.getString("totalTime", null)
             steps.text = s.toString() + ""
-            distance!!.text = dis.toString() + ""
+            distance!!.text = String.format("%.2f", dis) + ""
             calories!!.text = cal.toString() + ""
             time!!.text = totalTime
         } else {
             nextDay = true
-            val s = sharedPreferences.getFloat("key1", 0f)
+            val s = sharedPreferences.getFloat("key1", 0f).toInt()
             val dis = sharedPreferences.getFloat("distance", 0f)
-            val cal = sharedPreferences.getFloat("calories", 0f)
+            val cal = sharedPreferences.getFloat("calories", 0f).toInt()
             val t = sharedPreferences.getString("totalTime", null)
             seconds = 0
             val newReport = ReportModel(date, s.toString(), dis.toString(), cal.toString(), t, null)
