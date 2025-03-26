@@ -10,6 +10,10 @@
     <string name="km">Km</string>
     <string name="Kcal">Kcal</string>
     <string name="Time">Time</string>
+    <string name="Cal">Cal</string>
+    <string name="meters">Meters</string>
+    <string name="minutes">Minutes</string>
+    <string name="seconds">Seconds</string>
 
     <string-array name="language">
         <item>Select Language</item>

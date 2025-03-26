@@ -13,6 +13,12 @@
     <string name="km">كم</string>
     <string name="Kcal">سعر حراري</string>
     <string name="Time">الوقت</string>
+    <string name="Cal">سعر حراري</string>
+    <string name="meters">أمتار</string>
+    <string name="minutes">دقائق</string>
+    <string name="seconds">ثواني</string>
+
+
 
 
 

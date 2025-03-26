@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
-import android.content.res.Resources
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
@@ -30,133 +29,169 @@ class MainActivity : AppCompatActivity() {
     var time: TextView? = null
     private lateinit var play: CardView
     private lateinit var stop: CardView
-    var load = false
-    private var seconds = 0
-    private var totalTime: String? = "00:00"
+    private lateinit var reset: CardView
     private lateinit var reports: ImageView
     private lateinit var animationView2: LottieAnimationView
     private lateinit var animationView: LottieAnimationView
 
-    //private static final String SELECTED_LANGUAGE = "Locale.Helper.Selected.Language";
-
-    //ImageView language;
-    var context: Context? = null
-    var nextDay = false
-    private val mInterstitialAdPlay: InterstitialAd? = null
-    private val mInterstitialAdStop: InterstitialAd? = null
+    private var seconds = 0
+    private var totalTime: String? = "00:00"
     private var reportViewModel: ReportViewModel? = null
+    private var nextDay = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        if (!checkPermission()) {
-            requestPermission()
-        }
+
+        if (!checkPermission()) requestPermission()
+
+        // Views
         play = findViewById(R.id.play)
-        steps = findViewById(R.id.steps)
         stop = findViewById(R.id.stop)
-        reports = findViewById(R.id.reports)
-        calories = findViewById(R.id.calories)
+        reset = findViewById(R.id.reset)
+        steps = findViewById(R.id.steps)
         distance = findViewById(R.id.distance)
+        calories = findViewById(R.id.calories)
         time = findViewById(R.id.time)
-        animationView2 = findViewById(R.id.animationView2)
+        reports = findViewById(R.id.reports)
         animationView = findViewById(R.id.animationView)
+        animationView2 = findViewById(R.id.animationView2)
+
         reportViewModel = ViewModelProvider(this)[ReportViewModel::class.java]
+
         loadData()
+
         val sharedPreferences = getSharedPreferences("steps", MODE_PRIVATE)
         val run = sharedPreferences.getBoolean("running", false)
+
         if (run) {
             play.visibility = View.GONE
             stop.visibility = View.VISIBLE
-            animationView2.playAnimation()
             animationView.playAnimation()
+            animationView2.playAnimation()
         } else {
             play.visibility = View.VISIBLE
             stop.visibility = View.GONE
-            animationView2.pauseAnimation()
             animationView.pauseAnimation()
+            animationView2.pauseAnimation()
         }
-        play.setOnClickListener(View.OnClickListener {
+
+        play.setOnClickListener {
             play.visibility = View.GONE
             stop.visibility = View.VISIBLE
-            animationView2.playAnimation()
             animationView.playAnimation()
-            val sharedPreferences = getSharedPreferences("steps", MODE_PRIVATE)
+            animationView2.playAnimation()
+
             sharedPreferences.edit().putBoolean("running", true).apply()
+
+            val serviceIntent = Intent(this, BackGroundService::class.java)
+
             if (!nextDay) {
-                val serviceIntent = Intent(this@MainActivity, BackGroundService::class.java)
                 serviceIntent.putExtra("sensorValue", 0)
                 serviceIntent.putExtra("current", steps.text.toString())
                 serviceIntent.putExtra("sec", seconds)
                 serviceIntent.putExtra("time", totalTime)
-                startService(serviceIntent)
             } else {
                 val v = sharedPreferences.getFloat("sensorValue", 0f)
-                val serviceIntent = Intent(this@MainActivity, BackGroundService::class.java)
                 serviceIntent.putExtra("sensorValue", v)
                 serviceIntent.putExtra("sec", seconds)
                 serviceIntent.putExtra("time", "00:00")
-                startService(serviceIntent)
             }
-        })
-        reports.setOnClickListener(View.OnClickListener {
-            startActivity(Intent(this@MainActivity, ReportActivity::class.java)
-            )
-        })
-        stop.setOnClickListener(View.OnClickListener {
-            val sharedPreferences = getSharedPreferences("steps", MODE_PRIVATE)
+
+            startService(serviceIntent)
+        }
+
+        stop.setOnClickListener {
             sharedPreferences.edit().putBoolean("running", false).apply()
+            stopService(Intent(this, BackGroundService::class.java))
             play.visibility = View.VISIBLE
             stop.visibility = View.GONE
-            animationView2.pauseAnimation()
             animationView.pauseAnimation()
+            animationView2.pauseAnimation()
             loadData()
-            stopService(Intent(this@MainActivity, BackGroundService::class.java))
-        })
+        }
+
+        reset.setOnClickListener {
+            val editor = sharedPreferences.edit()
+            editor.putFloat("key1", 0f)
+            editor.putFloat("distance", 0f)
+            editor.putFloat("calories", 0f)
+            editor.putInt("time", 0)
+            editor.putString("totalTime", "00:00")
+            editor.putFloat("sensorValue", 0f)
+            editor.putBoolean("running", false)
+            editor.apply()
+
+            steps.text = "0"
+            distance?.text = "0"
+            calories?.text = "0"
+            time?.text = "00:00"
+
+            stopService(Intent(this, BackGroundService::class.java))
+            stop.visibility = View.GONE
+            play.visibility = View.VISIBLE
+            animationView.pauseAnimation()
+            animationView2.pauseAnimation()
+
+            Toast.makeText(this, "All stats have been reset!", Toast.LENGTH_SHORT).show()
+        }
+
+        reports.setOnClickListener {
+            startActivity(Intent(this, ReportActivity::class.java))
+        }
+
         Thread {
             while (true) {
                 runOnUiThread { loadData() }
-                try {
-                    Thread.sleep(2000)
-                } catch (e: InterruptedException) {
-                    e.printStackTrace()
-                }
+                Thread.sleep(2000)
             }
         }.start()
     }
 
     @SuppressLint("SetTextI18n")
-    fun loadData() {
-        val c = Calendar.getInstance().time
-        val df = SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault())
-        val formattedDate = df.format(c)
+    private fun loadData() {
+        val calendar = Calendar.getInstance().time
+        val formatter = SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault())
+        val today = formatter.format(calendar)
+
         val sharedPreferences = getSharedPreferences("steps", MODE_PRIVATE)
-        val date = sharedPreferences.getString("date", null)
-        if (date == formattedDate) {
+        val savedDate = sharedPreferences.getString("date", null)
+
+        if (savedDate == today) {
             nextDay = false
             val s = sharedPreferences.getFloat("key1", 0f).toInt()
             val dis = sharedPreferences.getFloat("distance", 0f)
-            val cal = sharedPreferences.getFloat("calories", 0f).toInt()
+            val calKcal = sharedPreferences.getFloat("calories", 0f)
+            val cal = (calKcal * 1000).toInt()
             seconds = sharedPreferences.getInt("time", 0)
-            totalTime = sharedPreferences.getString("totalTime", null)
-            steps.text = s.toString() + ""
-            distance!!.text = String.format("%.2f", dis) + ""
-            calories!!.text = cal.toString() + ""
-            time!!.text = totalTime
+
+            val minutes = seconds / 60
+            val secondsOnly = seconds % 60
+            totalTime = String.format("%02d:%02d", minutes, secondsOnly)
+
+            val meters = (dis * 1000).toInt()
+
+            steps.text = s.toString()
+            distance?.text = meters.toString()
+            calories?.text = cal.toString()
+            time?.text = totalTime
         } else {
             nextDay = true
             val s = sharedPreferences.getFloat("key1", 0f).toInt()
             val dis = sharedPreferences.getFloat("distance", 0f)
-            val cal = sharedPreferences.getFloat("calories", 0f).toInt()
+            val calKcal = sharedPreferences.getFloat("calories", 0f)
             val t = sharedPreferences.getString("totalTime", null)
             seconds = 0
-            val newReport = ReportModel(date, s.toString(), dis.toString(), cal.toString(), t, null)
-            reportViewModel!!.insert(newReport)
-            steps.text = 0.toString() + ""
-            distance!!.text = 0.toString() + ""
-            calories!!.text = 0.toString() + ""
-            time!!.text = "0h 50m"
-            val sharedPreferences2 = getSharedPreferences("steps", MODE_PRIVATE)
-            sharedPreferences2.edit().putString("date", formattedDate).apply()
+
+            val newReport = ReportModel(savedDate, s.toString(), dis.toString(), calKcal.toString(), t, null)
+            reportViewModel?.insert(newReport)
+
+            steps.text = "0"
+            distance?.text = "0"
+            calories?.text = "0"
+            time?.text = "00:00"
+
+            sharedPreferences.edit().putString("date", today).apply()
         }
     }
 
@@ -166,24 +201,23 @@ class MainActivity : AppCompatActivity() {
         val KcalText: TextView = findViewById(R.id.KcalText)
         val timeText: TextView = findViewById(R.id.timeText)
         val appName: TextView = findViewById(R.id.appName)
+
         appName.setText(R.string.app_name)
         timeText.setText(R.string.Time)
-        KcalText.setText(R.string.Kcal)
-        kmText.setText(R.string.km)
+        KcalText.setText(R.string.Cal) // updated from Kcal to Cal
+        kmText.setText(R.string.meters) // updated from km to meters
         stepText.setText(R.string.steps)
+
         super.onConfigurationChanged(newConfig)
     }
 
     private fun checkPermission(): Boolean {
-        val permission1 =
-            ContextCompat.checkSelfPermission(applicationContext, permission.ACTIVITY_RECOGNITION)
-        val permission2 =
-            ContextCompat.checkSelfPermission(applicationContext, permission.FOREGROUND_SERVICE)
+        val permission1 = ContextCompat.checkSelfPermission(this, permission.ACTIVITY_RECOGNITION)
+        val permission2 = ContextCompat.checkSelfPermission(this, permission.FOREGROUND_SERVICE)
         return permission1 == PackageManager.PERMISSION_GRANTED && permission2 == PackageManager.PERMISSION_GRANTED
     }
 
     private fun requestPermission() {
-        // requesting permissions if not provided.
         ActivityCompat.requestPermissions(
             this,
             arrayOf(permission.ACTIVITY_RECOGNITION, permission.FOREGROUND_SERVICE),
@@ -191,19 +225,13 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSION_REQUEST_CODE) {
             if (grantResults.isNotEmpty()) {
-                val writeStorage = grantResults[0] == PackageManager.PERMISSION_GRANTED
-                val readStorage = grantResults[1] == PackageManager.PERMISSION_GRANTED
-                if (writeStorage && readStorage) {
-                    Toast.makeText(this, "Permission Granted..", Toast.LENGTH_SHORT).show()
-                } else {
+                val granted = grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+                        grantResults[1] == PackageManager.PERMISSION_GRANTED
+                if (!granted) {
                     Toast.makeText(this, "Permission Denied.", Toast.LENGTH_SHORT).show()
                     finish()
                 }
