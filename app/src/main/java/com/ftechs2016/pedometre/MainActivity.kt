@@ -122,19 +122,27 @@ class MainActivity : AppCompatActivity() {
             editor.putBoolean("running", false)
             editor.apply()
 
+            // Stop the background service
+            stopService(Intent(this, BackGroundService::class.java))
+
+
+            // Clear UI
             steps.text = "0"
             distance?.text = "0"
             calories?.text = "0"
             time?.text = "00:00"
 
-            stopService(Intent(this, BackGroundService::class.java))
+            // Reset UI state
             stop.visibility = View.GONE
             play.visibility = View.VISIBLE
-            animationView.pauseAnimation()
-            animationView2.pauseAnimation()
+
+            // Stop animations cleanly
+            animationView.cancelAnimation()
+            animationView2.cancelAnimation()
 
             Toast.makeText(this, "All stats have been reset!", Toast.LENGTH_SHORT).show()
         }
+
 
         reports.setOnClickListener {
             startActivity(Intent(this, ReportActivity::class.java))
@@ -159,17 +167,18 @@ class MainActivity : AppCompatActivity() {
 
         if (savedDate == today) {
             nextDay = false
+
             val s = sharedPreferences.getFloat("key1", 0f).toInt()
             val dis = sharedPreferences.getFloat("distance", 0f)
             val calKcal = sharedPreferences.getFloat("calories", 0f)
-            val cal = (calKcal * 1000).toInt()
             seconds = sharedPreferences.getInt("time", 0)
 
             val minutes = seconds / 60
             val secondsOnly = seconds % 60
             totalTime = String.format("%02d:%02d", minutes, secondsOnly)
 
-            val meters = (dis * 1000).toInt()
+            val meters = dis.toInt()
+            val cal = calKcal.toInt()
 
             steps.text = s.toString()
             distance?.text = meters.toString()
@@ -177,6 +186,7 @@ class MainActivity : AppCompatActivity() {
             time?.text = totalTime
         } else {
             nextDay = true
+
             val s = sharedPreferences.getFloat("key1", 0f).toInt()
             val dis = sharedPreferences.getFloat("distance", 0f)
             val calKcal = sharedPreferences.getFloat("calories", 0f)

@@ -73,32 +73,23 @@ class BackGroundService : Service(), SensorEventListener {
             run = false
         }
 
-        val h = Handler()
-        h.post(object : Runnable {
+        val handler = Handler()
+        handler.post(object : Runnable {
             override fun run() {
-                running = sharedPreferences.getBoolean("running", false)
                 if (running) {
-                    val handler = Handler()
-                    handler.post(object : Runnable {
-                        override fun run() {
-                            val hours = seconds / 3600
-                            val minutes = seconds % 3600 / 60
-                            val secs = seconds % 60
-                            time = String.format(
-                                Locale.getDefault(), "%d:%02d:%02d", hours, minutes, secs
-                            )
-                            if (running) {
-                                seconds++
-                                saveTime()
-                                showNotification()
-                            }
-                            handler.postDelayed(this, 1000)
-                        }
-                    })
+                    val hours = seconds / 3600
+                    val minutes = (seconds % 3600) / 60
+                    val secs = seconds % 60
+                    time = String.format(Locale.getDefault(), "%d:%02d:%02d", hours, minutes, secs)
+
+                    seconds++
+                    saveTime()
+                    showNotification()
                 }
-                h.postDelayed(this, 1000)
+                handler.postDelayed(this, 1500)
             }
         })
+
 
         showNotification()
 
@@ -149,13 +140,15 @@ class BackGroundService : Service(), SensorEventListener {
                 }
             }
 
+            // Apply correction (3x multiplier to better reflect actual steps)
             val newSteps = totalSteps - previousTotalSteps
-            val correctedSteps = newSteps * (18f / 3f)
+            val correctedSteps = newSteps * 5.8f
             totalSteps = previousTotalSteps + correctedSteps
             previousTotalSteps = totalSteps
 
-            distance = 75 * totalSteps / 10000
-            calories = (0.04 * totalSteps).toFloat()
+            // Updated calculations
+            distance = totalSteps * 0.75f // ~0.75 meters per step
+            calories = (0.03 * totalSteps).toFloat() // ~0.03 kcal per step
 
             saveData()
             showNotification()

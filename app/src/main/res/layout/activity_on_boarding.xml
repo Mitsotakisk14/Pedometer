@@ -5,7 +5,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:background="@drawable/on_boarding_bg"
-    tools:context=".OnBoarding"
     android:layoutDirection="ltr"
     android:textDirection="ltr"
     android:fitsSystemWindows="true">

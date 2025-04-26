@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">My steps - pedometer</string>
+    <string name="app_name">Happify</string>
     <string name="reports">Reports</string>
     <string name="select_gender">Select Gender</string>
     <string name="select_language">Select Language</string>

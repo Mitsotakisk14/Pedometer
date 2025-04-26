@@ -4,6 +4,6 @@ import retrofit2.Call
 import retrofit2.http.GET
 
 interface MusicApiService {
-    @GET("v3/e993f51d-3ff7-4caa-8da0-ff2103bb34f2")
+    @GET("v3/a3eced93-703e-4d44-bbeb-b6cf54d7ac5c")
     fun getTrack(): Call<MusicTrack>
 }
